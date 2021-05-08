@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="description" content="Restaurant Recommendation">
+    <meta name="author" content="ddhee">
+    <title>Sniffer Restaurant Recommendation</title>
+
+    <!-- Fonts -->
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,700' rel='stylesheet' type='text/css'>
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+
+    <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+<!-- Top navigation -->
+<section class="top-bar">
+    <nav class="top-nav">
+        <a href="#">Home</a>
+        <a href="#">Contact</a>
+        <a href="#">About</a>
+    </nav>
+    <span id="welcome-msg"></span>
+    <a id="logout-link" href="LogoutServlet">Logout</a>
+    <i id="avatar" class="avatar fa fa-user fa-2x"></i>
+</section>
+
+<!-- Main container -->
+<section class="main-container">
+    <!-- Main title -->
+    <header>
+        <p>
+            <span class="main-title">Sniffer</span>
+            <span class="small-title">Restaurant Recommendation</span>
+        </p>
+    </header>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <!-- Login form -->
+        <div id="login-form">
+            <label for="username">Username:</label>
+            <input id="username" name="username" type="text">
+            <label for="password">Password:</label>
+            <input id="password" name="password" type="password">
+            <button id="login-btn">Login</button>
+            <p id="login-error"></p>
+        </div>
+
+        <!-- App menu -->
+        <aside id="restaurant-nav">
+            <div class="nav-icon">
+                <i class="fa fa-cutlery fa-2x"></i>
+            </div>
+            <nav class="main-nav">
+                <a href="#" id="nearby-btn" class="main-nav-btn active" onclick="loadNearbyRestaurants()">
+                    <i class="fa fa-map-marker"></i> Nearby
+                </a>
+                <a href="#" id="fav-btn" class="main-nav-btn" onclick="loadFavoriteRestaurants()">
+                    <i class="fa fa-heart"></i> My Favorites
+                </a>
+                <a href="#" id="recommend-btn" class="main-nav-btn" onclick="loadRecommendedRestaurants()">
+                    <i class="fa fa-thumbs-up"></i> Recommendation
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Restaurant list -->
+        <ul id="restaurant-list">
+            <li class="restaurant">
+                <img alt="restaurant image"
+                     src="https://s3-media3.fl.yelpcdn.com/bphoto/EmBj4qlyQaGd9Q4oXEhEeQ/ms.jpg"/>
+                <div>
+                    <a class="restaurant-name" href="#">Restaurant</a>
+                    <p class="restaurant-category">Vegetarian</p>
+                    <div class="stars">
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                        <i class="fa fa-star"></i>
+                    </div>
+                </div>
+                <p class="restaurant-address">699 Calderon Ave<br/>Mountain View<br/> CA</p>
+                <div class="fav-link">
+                    <i class="fa fa-heart"></i>
+                </div>
+            </li>
+        </ul>
+    </div>
+</section>
+
+<!-- About us footer -->
+<footer>
+    <p class="title">What We Do</p>
+    <p>"Help you find the best restaurant around."</p>
+    <ul>
+        <li>
+            <p><i class="fa fa-map-o fa-2x"></i></p>
+            <p>Sniffer Office, MD</p>
+        </li>
+        <li>
+            <p><i class="fa fa-envelope-o fa-2x"></i></p>
+            <p>info@sniffer.moc</p>
+        </li>
+        <li>
+            <p><i class="fa fa-phone fa-2x"></i></p>
+            <p>+1 123 420 6666</p>
+        </li>
+    </ul>
+</footer>
+
+<!-- MD5 hash function -->
+<script src="https://rawgit.com/emn178/js-md5/master/build/md5.min.js"></script>
+
+<!-- JQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="scripts/main.js"></script>
+</body>
+</html>
