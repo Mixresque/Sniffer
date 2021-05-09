@@ -16,8 +16,8 @@
         // validateSession();
 
         onSessionValid({
-            user_id: '1111',
-            name: 'John Smith'
+            user_id: 'ddhee',
+            name: 'Dd Hee'
         });
     }
 
@@ -339,6 +339,7 @@
      *
      * @param method - GET|POST|PUT|DELETE
      * @param url - API end point
+     * @param data - Data to send if any
      * @param callback - This the successful callback
      * @param errorHandler - This is the failed callback
      */

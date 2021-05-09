@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import java.util.List;
 import java.util.Set;
 
-public class MySQLDBConnection implements DBConnection {
+public class MysqlDBConnection implements DBConnection {
   @Override
   public void close() {
 
@@ -86,7 +86,7 @@ public class MySQLDBConnection implements DBConnection {
   }
 
   public static void main(String[] args) {
-    MySQLDBConnection db = new MySQLDBConnection();
+    MysqlDBConnection db = new MysqlDBConnection();
     System.out.println(db.searchRestaurants("ddhee", 37.38, -122.08, "coffee").toString());
   }
 }
