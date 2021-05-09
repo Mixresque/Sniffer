@@ -1,11 +1,14 @@
 package org.ddhee.Sniffer.db.mysql;
 
+import org.ddhee.Sniffer.db.Argon2Config;
 import org.ddhee.Sniffer.db.DBConnection;
 import org.ddhee.Sniffer.entity.Restaurant;
 import org.ddhee.Sniffer.external.YelpAPI;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 
 import java.sql.*;
 import java.util.HashSet;
@@ -42,12 +45,74 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public Boolean verifyLogin(String userId, String password) {
-    return null;
+    if (conn == null) {
+      return false;
+    }
+
+    System.out.println("Called with " + userId + "; " + password);
+    try {
+      String sql = "SELECT password FROM users WHERE user_id = ? AND password = ?";
+      PreparedStatement stmt = conn.prepareStatement(sql);
+      stmt.setString(1, userId);
+
+      // Hash input password then check if exists in database
+      Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+      String hashedPwd = argon2.hash(Argon2Config.iterations,
+              Argon2Config.memory, Argon2Config.parallelism, password.toCharArray());
+      stmt.setString(2, hashedPwd);
+
+      ResultSet rs = stmt.executeQuery();
+      return rs.next();
+
+//      // Get hashed password then compare
+//      String sql = "SELECT password FROM users WHERE user_id = ?";
+//      PreparedStatement stmt = conn.prepareStatement(sql);
+//      stmt.setString(1, userId);
+//      ResultSet rs = stmt.executeQuery();
+//      if (rs.next()) {
+//        String hashedPwd = rs.getString("password");
+//        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+//        return argon2.verify(hashedPwd, password.toCharArray());
+//      } else {
+//        // Couldn't find corresponding user
+//        return false;
+//      }
+
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return false;
   }
 
   @Override
   public String getFullName(String userId) {
-    return null;
+    if (conn == null) {
+      return "";
+    }
+
+    try {
+      String sql = "SELECT first_name, last_name FROM users WHERE user_id = ?";
+      PreparedStatement stmt = conn.prepareStatement(sql);
+      stmt.setString(1, userId);
+      ResultSet rs = stmt.executeQuery();
+      if (rs.next()) {
+        String firstName = rs.getString("first_name");
+        String lastName = rs.getString("last_name");
+        if (firstName != null && lastName != null) {
+          return firstName + " " + lastName;
+        } else if (firstName != null) {
+          return firstName;
+        } else if (lastName != null) {
+          return lastName;
+        } else {
+          return "";
+        }
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    return "";
   }
 
   @Override
@@ -57,6 +122,10 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public void setVisitedRestaurants(String userId, List<String> businessIds) {
+    if (conn == null) {
+      return;
+    }
+
     String sql = "INSERT INTO history (user_id, business_id) VALUES (?,?)";
     try {
       PreparedStatement statement = conn.prepareStatement(sql);
@@ -72,6 +141,10 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public void unsetVisitedRestaurants(String userId, List<String> businessIds) {
+    if (conn == null) {
+      return;
+    }
+
     String sql = "DELETE FROM history WHERE user_id=? AND business_id=?";
     try {
       PreparedStatement statement = conn.prepareStatement(sql);
@@ -87,6 +160,10 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public Set<String> getVisitedRestaurants(String userId) {
+    if (conn == null) {
+      return null;
+    }
+
     Set<String> visitedRestaurants = new HashSet<>();
 
     if (userId == null) {
@@ -125,6 +202,10 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public JSONArray searchRestaurants(String userId, double lat, double lon, String term) {
+    if (conn == null) {
+      return null;
+    }
+
     YelpAPI yelpApi = new YelpAPI();
     JSONObject result = new JSONObject(yelpApi.searchBusinessByLocation(lat, lon));
 
@@ -136,6 +217,9 @@ public class MysqlDBConnection implements DBConnection {
       JSONArray businesses = (JSONArray) result.get("businesses");
       JSONArray purifiedBusinesses = new JSONArray();
       Set<String> visited = getVisitedRestaurants(userId);
+      if (visited == null) {
+        visited = new HashSet<>();
+      }
 
       for (int i = 0; i < businesses.length(); i++) {
         Restaurant restaurant = new Restaurant.RestaurantBuilder(businesses.getJSONObject(i)).build();

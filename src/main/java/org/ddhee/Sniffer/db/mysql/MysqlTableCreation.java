@@ -1,5 +1,9 @@
 package org.ddhee.Sniffer.db.mysql;
 
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
+import org.ddhee.Sniffer.db.Argon2Config;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -66,11 +70,20 @@ public class MysqlTableCreation {
               + " FOREIGN KEY (user_id) REFERENCES users(user_id))";
       stmt.executeUpdate(sql);
 
-      // Create a fake user
-      sql = "INSERT INTO users VALUES (\"ddhee\", \"123\", \"Dd\", \"Hee\")";
-      stmt.executeUpdate(sql);
-
       System.out.println("Table reset successfully. ");
+
+      // Test inserting data. Insert a fake user
+      String userId = "ddhee";
+      String password ="123";
+      String firstName = "Dd";
+      String lastName = "Hee";
+      Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+      String hashedPwd = argon2.hash(Argon2Config.iterations,
+              Argon2Config.memory, Argon2Config.parallelism, password.toCharArray());
+      sql = "INSERT  INTO users VALUES ('" + userId + "', '" + hashedPwd
+              + "', '" + firstName + "', '" + lastName + "')";
+      int result = stmt.executeUpdate(sql);
+      System.out.println("Inserted fake user ddhee");
     } catch (SQLException e) {
       System.out.println("SQLException " + e.getMessage());
       System.out.println("SQLState " + e.getSQLState());
