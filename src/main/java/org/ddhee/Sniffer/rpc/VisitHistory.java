@@ -1,5 +1,7 @@
 package org.ddhee.Sniffer.rpc;
 
+import org.ddhee.Sniffer.db.DBConnection;
+import org.ddhee.Sniffer.db.mysql.MysqlDBConnection;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +25,7 @@ public class VisitHistory extends HttpServlet {
       return;
     }
 
+    DBConnection connection = new MysqlDBConnection();
     try {
       String userId = input.getString("user_id");
       JSONArray visited = (JSONArray) input.get("visited");
@@ -31,6 +34,7 @@ public class VisitHistory extends HttpServlet {
         String restaurantId = (String) visited.get(i);
         visitedRestaurants.add(restaurantId);
       }
+      connection.setVisitedRestaurants(userId, visitedRestaurants);
       RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_OK);
     } catch (JSONException e) {
       e.printStackTrace();

@@ -57,35 +57,55 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public void setVisitedRestaurants(String userId, List<String> businessIds) {
-
+    String sql = "INSERT INTO history (user_id, business_id) VALUES (?,?)";
+    try {
+      PreparedStatement statement = conn.prepareStatement(sql);
+      statement.setString(1, userId);
+      for  (String businessId : businessIds) {
+        statement.setString(2, businessId);
+        statement.execute();
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
   public void unsetVisitedRestaurants(String userId, List<String> businessIds) {
-
+    String sql = "DELETE FROM history WHERE user_id=? AND business_id=?";
+    try {
+      PreparedStatement statement = conn.prepareStatement(sql);
+      statement.setString(1, userId);
+      for  (String businessId : businessIds) {
+        statement.setString(2, businessId);
+        statement.execute();
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
   }
 
   @Override
   public Set<String> getVisitedRestaurants(String userId) {
+    Set<String> visitedRestaurants = new HashSet<>();
+
     if (userId == null) {
-      return null;
+      return visitedRestaurants;
     }
 
-    Set<String> vistedRestaurants = new HashSet<>();
-
+    String sql = "SELECT business_id FROM history WHERE user_id = ?";
     try {
-      String sql = "SELECT business_id FROM history WHERE user_id = ?";
       PreparedStatement statement = conn.prepareStatement(sql);
       statement.setString(1, userId);
       ResultSet rs = statement.executeQuery();
       while (rs.next()) {
-        vistedRestaurants.add(rs.getString("business_id"));
+        visitedRestaurants.add(rs.getString("business_id"));
       }
     } catch (SQLException e) {
       e.printStackTrace();
     }
 
-    return vistedRestaurants;
+    return visitedRestaurants;
   }
 
   @Override

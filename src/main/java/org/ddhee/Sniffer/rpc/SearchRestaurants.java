@@ -26,10 +26,8 @@ public class SearchRestaurants extends HttpServlet {
       String term = request.getParameter("term");
 
       DBConnection connection = new MysqlDBConnection();
-      if (connection != null) {
-        restaurants = connection.searchRestaurants(userId, Double.parseDouble(lat), Double.parseDouble(lon), term);
-        connection.close();
-      }
+      restaurants = connection.searchRestaurants(userId, Double.parseDouble(lat), Double.parseDouble(lon), term);
+      connection.close();
     }
 
     RpcParser.writeJsonArray(response, HttpServletResponse.SC_OK, restaurants);
