@@ -90,7 +90,7 @@ public class YelpAPI {
 
       System.out.println("\nSending 'GET' request to URL : " + url);
       int responseCode = connection.getResponseCode();
-      System.out.println("Response Code : " + responseCode);
+      System.out.println("HERE Response Code : " + responseCode);
 
       BufferedReader in = new BufferedReader(new
               InputStreamReader(connection.getInputStream()));
@@ -131,7 +131,7 @@ public class YelpAPI {
 
   // Queries Yelp Search API based on command line arguments
   public static void main(String[] args) {
-    YelpAPI yelpApi = new YelpAPI();
-    yelpApi.queryAPI(37.38, -122.08);
+//    YelpAPI yelpApi = new YelpAPI();
+//    yelpApi.queryAPI(37.38, -122.08);
   }
 }

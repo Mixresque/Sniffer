@@ -9,5 +9,5 @@ public class MysqlDBUtil {
   private static final String CONN_CONFIGS = "&autoReconnect=true&serverTimezone=UTC";
   public static final String DB_URL = "jdbc:mariadb://" + HOST + ":" + PORT + "/" + DB_NAME
                         + "?user=" + USERNAME + "&password=" + PASSWORD + CONN_CONFIGS;
-//  public static final String DRIVER = "org.mariadb.jdbc.Driver";
+  public static final String DRIVER = "org.mariadb.jdbc.Driver";
 }

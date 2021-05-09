@@ -20,15 +20,16 @@ public class SearchRestaurants extends HttpServlet {
 
     if (lat != null && lon != null) {
       // String userId = (String) session.getAttribute("user");
-      String userId = "ddhee";
+      String userId = request.getParameter("user_id");
 
       // term is null or empty by default
       String term = request.getParameter("term");
 
       DBConnection connection = new MysqlDBConnection();
-      restaurants = connection.searchRestaurants(userId, Double.parseDouble(lat), Double.parseDouble(lon), term);
-
-      connection.close();
+      if (connection != null) {
+        restaurants = connection.searchRestaurants(userId, Double.parseDouble(lat), Double.parseDouble(lon), term);
+        connection.close();
+      }
     }
 
     RpcParser.writeJsonArray(response, HttpServletResponse.SC_OK, restaurants);
