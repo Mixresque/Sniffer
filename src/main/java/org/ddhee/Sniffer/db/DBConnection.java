@@ -13,6 +13,12 @@ public interface DBConnection {
   public void close();
 
   /**
+   * Get database connection status
+   * @return database connection status
+   */
+  public boolean isConnected();
+
+  /**
    * Verify if password is correct for a user id
    * @param userId - user id
    * @param password - password
@@ -31,24 +37,26 @@ public interface DBConnection {
    * Get a restaurant in JSON format by id;
    * if visited is true, set the visited field in json
    * @param businessId - queried restaurant's id
-   * @param visited - set the visited field in json
+   * @param visiting - set the visited field in json if visiting
    * @return queried restaurant in JSON
    */
-  public JSONObject getRestaurantsById(String businessId, boolean visited);
+  public JSONObject getRestaurantsById(String businessId, boolean visiting);
 
   /**
    * Set a list of restaurants as visited for a user
    * @param userId - the user's id
    * @param businessIds - list of restaurant ids
+   * @return if operation was successful
    */
-  public void setVisitedRestaurants(String userId, List<String> businessIds);
+  public boolean setVisitedRestaurants(String userId, List<String> businessIds);
 
   /**
    * Unset a list of restaurants as visited for a user
    * @param userId - the user's id
    * @param businessIds - list of restaurant ids
+   * @return if operation was successful
    */
-  public void unsetVisitedRestaurants(String userId, List<String> businessIds);
+  public boolean unsetVisitedRestaurants(String userId, List<String> businessIds);
 
   /**
    * Get the set of visited restaurants for a user
@@ -56,13 +64,6 @@ public interface DBConnection {
    * @return set of visited restaurants' ids
    */
   public Set<String> getVisitedRestaurants(String userId);
-
-  /**
-   * Recommend restaurants for a user
-   * @param userId - user's id
-   * @return list of recommended restaurants in JSON array
-   */
-  public JSONArray recommendRestaurants(String userId);
 
   /**
    * Get the categories of a restaurant
@@ -76,7 +77,7 @@ public interface DBConnection {
    * @param category - queried category
    * @return set of business ids of businesses from input category
    */
-  public Set<String> getBusinessId(String category);
+  public Set<String> getBusinessIdByCategory(String category);
 
   /**
    * Search restaurants by keyword near a geolocation

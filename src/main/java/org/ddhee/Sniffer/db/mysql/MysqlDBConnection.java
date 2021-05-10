@@ -11,20 +11,25 @@ import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 
 import java.sql.*;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class MysqlDBConnection implements DBConnection {
   private Connection conn = null;
-  private static final int MAX_RECOMMENDED_RESTAURANTS = 10;
+  private boolean connected;
 
   public MysqlDBConnection(String url) {
     try {
       Class.forName(MysqlDBUtil.DRIVER).newInstance();
       conn = DriverManager.getConnection(url);
+      if (conn != null) {
+        connected = true;
+      }
     } catch (SQLException | ClassNotFoundException | InstantiationException | IllegalAccessException e) {
       e.printStackTrace();
+      connected = false;
     }
   }
 
@@ -40,16 +45,21 @@ public class MysqlDBConnection implements DBConnection {
       } catch (SQLException e) {
         e.printStackTrace();
       }
+      connected = false;
     }
   }
 
   @Override
+  public boolean isConnected() {
+    return connected;
+  }
+
+  @Override
   public Boolean verifyLogin(String userId, String password) {
-    if (conn == null) {
+    if (!connected || conn == null || userId == null || password == null) {
       return false;
     }
 
-    System.out.println("Called with " + userId + "; " + password);
     try {
       String sql = "SELECT password FROM users WHERE user_id = ? AND password = ?";
       PreparedStatement stmt = conn.prepareStatement(sql);
@@ -86,8 +96,8 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public String getFullName(String userId) {
-    if (conn == null) {
-      return "";
+    if (!connected || conn == null || userId == null) {
+      return null;
     }
 
     try {
@@ -116,33 +126,80 @@ public class MysqlDBConnection implements DBConnection {
   }
 
   @Override
-  public JSONObject getRestaurantsById(String businessId, boolean visited) {
-    return null;
-  }
-
-  @Override
-  public void setVisitedRestaurants(String userId, List<String> businessIds) {
-    if (conn == null) {
-      return;
+  public JSONObject getRestaurantsById(String businessId, boolean visiting) {
+    if (!connected || conn == null || businessId == null) {
+      return null;
     }
 
-    String sql = "INSERT INTO history (user_id, business_id) VALUES (?,?)";
+    String sql = "SELECT * FROM restaurants where business_id = ?";
     try {
       PreparedStatement statement = conn.prepareStatement(sql);
-      statement.setString(1, userId);
-      for  (String businessId : businessIds) {
-        statement.setString(2, businessId);
-        statement.execute();
+      statement.setString(1, businessId);
+      ResultSet rs = statement.executeQuery();
+      if (rs.next()) {
+        Restaurant restaurant = new Restaurant.RestaurantBuilder()
+                                      .setBusinessId(rs.getString("business_id"))
+                                      .setName(rs.getString("name"))
+                                      .setCategories(rs.getString("categories"))
+                                      .setCity(rs.getString("city"))
+                                      .setState(rs.getString("state"))
+                                      .setStars(rs.getFloat("stars"))
+                                      .setAddress(rs.getString("address"))
+                                      .setLatitude(rs.getFloat("latitude"))
+                                      .setLongitude(rs.getFloat("longitude"))
+                                      .setUrl(rs.getString("url"))
+                                      .setImageUrl(rs.getString("image_url"))
+                                      .build();
+        return restaurant.toJSONObject().put("visited", visiting);
       }
     } catch (SQLException e) {
       e.printStackTrace();
     }
+    return null;
   }
 
   @Override
-  public void unsetVisitedRestaurants(String userId, List<String> businessIds) {
-    if (conn == null) {
-      return;
+  public boolean setVisitedRestaurants(String userId, List<String> businessIds) {
+    if (!connected || conn == null || userId == null || businessIds == null) {
+      return false;
+    }
+
+    String sqlHistory = "INSERT INTO history (user_id, business_id) VALUES (?,?)";
+    String sqlUser = "SELECT 1 FROM users WHERE user_id=?";
+    String sqlRestaurant = "SELECT 1 FROM restaurants WHERE business_id=?";
+    try {
+      PreparedStatement stmtUser = conn.prepareStatement(sqlUser);
+      stmtUser.setString(1, userId);
+      ResultSet rs1 = stmtUser.executeQuery();
+      if (!rs1.next()) {
+        return false;
+      }
+
+      PreparedStatement stmtHistory = conn.prepareStatement(sqlHistory);
+      PreparedStatement stmtRestaurant = conn.prepareStatement(sqlRestaurant);
+      stmtHistory.setString(1, userId);
+      for  (String businessId : businessIds) {
+        // check if restaurant associated with businessId exists in database
+        stmtRestaurant.setString(1, businessId);
+        ResultSet rs2 = stmtRestaurant.executeQuery();
+
+        // if restaurant exists, add new history
+        if (rs2.next()) {
+          stmtHistory.setString(2, businessId);
+          stmtHistory.execute();
+        }
+      }
+      return true;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return false;
+  }
+
+  @Override
+  public boolean unsetVisitedRestaurants(String userId, List<String> businessIds) {
+    if (!connected || conn == null || userId == null || businessIds == null) {
+      return false;
     }
 
     String sql = "DELETE FROM history WHERE user_id=? AND business_id=?";
@@ -153,20 +210,18 @@ public class MysqlDBConnection implements DBConnection {
         statement.setString(2, businessId);
         statement.execute();
       }
+      return true;
     } catch (SQLException e) {
       e.printStackTrace();
     }
+    return false;
   }
 
   @Override
   public Set<String> getVisitedRestaurants(String userId) {
-    if (conn == null) {
-      return null;
-    }
-
     Set<String> visitedRestaurants = new HashSet<>();
 
-    if (userId == null) {
+    if (!connected || conn == null || userId == null) {
       return visitedRestaurants;
     }
 
@@ -186,28 +241,59 @@ public class MysqlDBConnection implements DBConnection {
   }
 
   @Override
-  public JSONArray recommendRestaurants(String userId) {
-    return null;
-  }
-
-  @Override
   public Set<String> getCategories(String businessId) {
-    return null;
+    Set<String> categorySet = new HashSet<>();
+
+    if (!connected || conn == null || businessId == null) {
+      return categorySet;
+    }
+
+    String sql = "SELECT categories FROM restaurants WHERE business_id = ?";
+    try {
+      PreparedStatement statement = conn.prepareStatement(sql);
+      statement.setString(1, businessId);
+      ResultSet rs = statement.executeQuery();
+      if (rs.next()) {
+        String[] categories = rs.getString("categories").split(",");
+        Collections.addAll(categorySet, categories);
+      }
+      return categorySet;
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return categorySet;
   }
 
   @Override
-  public Set<String> getBusinessId(String category) {
-    return null;
+  public Set<String> getBusinessIdByCategory(String category) {
+    Set<String> businesses = new HashSet<>();
+    if (!connected || conn == null || category == null) {
+      return businesses;
+    }
+
+    String sql = "SELECT business_id FROM restaurants WHERE categories LIKE ?";
+    try {
+      PreparedStatement statement = conn.prepareStatement(sql);
+      statement.setString(1, "%" + category + "%");
+      ResultSet rs = statement.executeQuery();
+      while (rs.next()) {
+        businesses.add(rs.getString("business_id"));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+
+    return businesses;
   }
 
   @Override
   public JSONArray searchRestaurants(String userId, double lat, double lon, String term) {
-    if (conn == null) {
+    if (!connected || conn == null || userId == null) {
       return null;
     }
 
     YelpAPI yelpApi = new YelpAPI();
-    JSONObject result = new JSONObject(yelpApi.searchBusinessByLocation(lat, lon));
+    JSONObject result = new JSONObject(yelpApi.searchBusinessByLocation(lat, lon, term));
 
     if (result.isNull("businesses")) {
       return null;

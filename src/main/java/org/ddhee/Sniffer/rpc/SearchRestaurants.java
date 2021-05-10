@@ -26,11 +26,14 @@ public class SearchRestaurants extends HttpServlet {
       String term = request.getParameter("term");
 
       DBConnection connection = new MysqlDBConnection();
+      if (!connection.isConnected()) {
+        RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        return;
+      }
+
       restaurants = connection.searchRestaurants(userId, Double.parseDouble(lat), Double.parseDouble(lon), term);
       connection.close();
+      RpcParser.writeJsonArray(response, HttpServletResponse.SC_OK, restaurants);
     }
-
-    RpcParser.writeJsonArray(response, HttpServletResponse.SC_OK, restaurants);
   }
-
 }

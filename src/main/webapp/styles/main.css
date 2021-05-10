@@ -124,12 +124,15 @@ ul {
 .main-nav-btn {
     background: none;
     border-top: 1px solid #FFFFFF;
-    border-bottom: 1px solid #FFFFFF;
     color: #FFFFFF;
     display: block;
     padding: 20px;
     text-align: left;
     text-decoration: none;
+}
+
+#recommend-btn {
+    border-bottom: 1px solid #FFFFFF;
 }
 
 .main-nav-btn:hover {
@@ -153,7 +156,7 @@ ul {
     display: none;
     list-style: none;
     margin-left: 180px;
-    min-height: 255px;
+    min-height: 269px;
     padding: 10px;
 }
 

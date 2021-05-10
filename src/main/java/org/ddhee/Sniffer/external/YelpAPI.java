@@ -69,6 +69,9 @@ public class YelpAPI {
 
   // Creates and sends request to the Business Search API by location
   public String searchBusinessByLocation(double lat, double lon, String term) {
+    if (term == null) {
+      term = DEFAULT_TERM;
+    }
     String query = String.format("term=%s&latitude=%s&longitude=%s&limit=%s",
                                   term, lat, lon, SEARCH_LIMIT);
     String url = API_HOST + SEARCH_PATH;
