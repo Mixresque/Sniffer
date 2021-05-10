@@ -126,7 +126,7 @@ public class MysqlDBConnection implements DBConnection {
   }
 
   @Override
-  public JSONObject getRestaurantsById(String businessId, boolean visiting) {
+  public JSONObject getRestaurantById(String businessId, boolean visiting) {
     if (!connected || conn == null || businessId == null) {
       return null;
     }

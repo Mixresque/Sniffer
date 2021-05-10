@@ -5,7 +5,7 @@
 }
 
 body {
-    background: #434343;
+    background: #D29D85;
     color: #FFFFFF;
     font-family: 'Open Sans', sans-serif;
     font-weight: 300;
@@ -19,8 +19,8 @@ ul {
 /* top navigation */
 .top-bar {
     align-items: center;
-    background: #DF574B;
-    box-shadow: 0px 2px 10px #333333;
+    background: #32534D;
+    box-shadow: 0px 2px 8px #969696;
     display: flex;
     height: 60px;
     position: fixed;
@@ -73,7 +73,7 @@ ul {
 
 /* main container */
 .main-container {
-    margin: 60px auto;
+    margin: 60px auto 0;
     max-width: 1000px;
     min-width: 600px;
 }
@@ -81,7 +81,7 @@ ul {
 /* main header */
 .main-container > header {
     align-items: center;
-    background: url('http://prophoto.com.cy/wp-content/galleries/food/food-restaurant-photographer-cyprus-10.jpg') no-repeat 50% 50%;
+    /*background: url('#') no-repeat 50% 50%;*/
     background-size: 100%;
     display: flex;
     height: 250px;
@@ -97,15 +97,16 @@ ul {
 }
 
 .main-title {
-    color: #FBAF41;
+    color: #A16856;
     font-size: 1.75em;
+    font-weight: 500;
     margin-left: 0.1em;
     margin-right: 0.22em;
 }
 
 /* main content */
 .main-content {
-    background: #F3BB43;
+    background: #A16856;
 }
 
 /* main navigation */
@@ -116,15 +117,15 @@ ul {
 }
 
 .nav-icon {
-    color: #624630;
+    color: #5F4938;
     padding: 20px;
     text-align: center;
 }
 
 .main-nav-btn {
     background: none;
-    border-top: 1px solid #FFFFFF;
-    color: #FFFFFF;
+    border-top: 1px solid #B38375;
+    color: #FBE5D5;
     display: block;
     padding: 20px;
     text-align: left;
@@ -132,17 +133,17 @@ ul {
 }
 
 #recommend-btn {
-    border-bottom: 1px solid #FFFFFF;
+    border-bottom: 1px solid #B38375;
 }
 
 .main-nav-btn:hover {
     background: rgba(255, 255, 255, 0.8);
-    color: #624630;
+    color: #5F4938;
 }
 
 .main-nav-btn.active {
-    background: #F2EBD9;
-    color: #624630;
+    background: #FBE5D5;
+    color: #5F4938;
 }
 
 .main-nav-btn i {
@@ -151,12 +152,12 @@ ul {
 
 /* restaurant list */
 #restaurant-list {
-    background: #F2EBD9;
-    color: #624630;
+    background: #FBE5D5;
+    color: #5F4938;
     display: none;
     list-style: none;
     margin-left: 180px;
-    min-height: 269px;
+    min-height: 300px;
     padding: 10px;
 }
 
@@ -169,7 +170,7 @@ ul {
 .restaurant {
     align-items: center;
     border-bottom: 1px solid #FFFFFF;
-    color: #624630;
+    color: #5F4938;
     display: flex;
     margin: 10px;
     padding: 15px;
@@ -198,7 +199,7 @@ ul {
 }
 
 .restaurant-name {
-    color: #624630;
+    color: #5F4938;
     font-weight: 400;
     text-decoration: none;
 }
@@ -233,7 +234,11 @@ ul {
 
 /* footer */
 footer {
-    background: #434343;
+    max-width: 1000px;
+    min-width: 600px;
+    padding-top: 25px;
+    margin: 0 auto;
+    background: #b08a78;
     font-size: 0.8em;
     height: 200px;
     position: relative;
@@ -264,10 +269,12 @@ footer ul li {
  * login form
  */
 #login-form {
-    color: #624630;
-    margin: 0px auto;
+    color: #FBE5D5;
+    margin: 0 auto;
     overflow: auto;
-    padding: 40px;
+    /*padding: 40px;*/
+    padding: 65px 40px 60px 40px;
+    /*min-height: 300px;*/
     width: 300px;
 }
 
@@ -295,3 +302,8 @@ footer ul li {
     color: #990000;
     padding-top: 10px;
 }
+
+/*
+    Color pallete
+    da9a88
+ */

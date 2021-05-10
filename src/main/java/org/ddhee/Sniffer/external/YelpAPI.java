@@ -19,7 +19,7 @@ public class YelpAPI {
   private static final String CLIENT_SECRET = "gEvhAai5KSKpqpBFffxW7MtvAXmkPtAmJZqIG4YoqKNP8zjVs__itDakQ61cqS-2dgg2_KaXxhJcxZeeRDu9mG-VbZ2bsHltjBgBYDfYNG1eMj2A319_EvqIEsuWYHYx";
   private static final String GRANT_TYPE = "client_credentials";
   private static final String TOKEN_TYPE = "Bearer";
-  private static final String DEFAULT_TERM = "coffee";
+  private static final String DEFAULT_TERM = "";
   private static final int SEARCH_LIMIT = 20;
 
   public YelpAPI() {}

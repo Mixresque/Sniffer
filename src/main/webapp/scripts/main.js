@@ -1,10 +1,10 @@
 (function () {
 
     // variables
-    let user_id = '';
-    let user_fullname = '';
-    let lat = 37.38;
-    let lng = -122.08;
+    var user_id = 'ddhee';
+    var user_fullname = '';
+    var lat = 40.73;
+    var lng = -73.99;
 
     function init() {
         // Register event listeners
@@ -202,7 +202,7 @@
 
         // set the data attribute
         li.dataset.business = business_id;
-        li.dataset.visited = restaurant.is_visited;
+        li.dataset.visited = restaurant.visited;
 
         // restaurant image
         li.appendChild($('img', {src: restaurant.image_url}));
@@ -217,12 +217,12 @@
 
         // category
         let category = $('p', {className: 'restaurant-category'});
-        category.innerHTML = 'Category: ' + restaurant.categories.join(', ');
+        category.innerHTML = restaurant.categories.join(', ');
         section.appendChild(category);
 
         // stars
         let stars = $('div', {className: 'stars'});
-        for (let i = 0; i < restaurant.stars; i++) {
+        for (let i = 0; i < Math.floor(restaurant.stars); i++) {
             let star = $('i', {className: 'fa fa-star'});
             stars.appendChild(star);
         }
@@ -238,7 +238,7 @@
         // address
         let address = $('p', {className: 'restaurant-address'});
 
-        address.innerHTML = restaurant.full_address.replace(/,/g, '<br/>');
+        address.innerHTML = restaurant.address.replace(/,/g, '<br/>');
         li.appendChild(address);
 
         // favorite link
@@ -250,7 +250,7 @@
 
         favLink.appendChild($('i', {
             id: 'fav-icon-' + business_id,
-            className: restaurant.is_visited ? 'fa fa-heart' : 'fa fa-heart-o'
+            className: restaurant.visited ? 'fa fa-heart' : 'fa fa-heart-o'
         }));
 
         li.appendChild(favLink);
@@ -385,7 +385,6 @@
      * API end point: [GET] /Sniffer/restaurants?user_id=1111&lat=37.38&lon=-122.08
      */
     function loadNearbyRestaurants() {
-        console.log('loadNearbyRestaurants');
         activeBtn('nearby-btn');
 
         // The request parameters
@@ -494,7 +493,7 @@
         // Check whether this restaurant has been visited or not
         let li = $('restaurant-' + business_id);
         let favIcon = $('fav-icon-' + business_id);
-        let isVisited = li.dataset.visited !== 'true';
+        let visited = li.dataset.visited !== 'true';
 
         // The request parameters
         let url = './history';
@@ -502,16 +501,13 @@
             user_id: user_id,
             visited: [business_id]
         });
-        let method = isVisited ? 'POST' : 'DELETE';
+        let method = visited ? 'POST' : 'DELETE';
 
         ajax(method, url, req,
             // successful callback
             function (res) {
-                let result = JSON.parse(res);
-                if (result.status === 'OK') {
-                    li.dataset.visited = isVisited;
-                    favIcon.className = isVisited ? 'fa fa-heart' : 'fa fa-heart-o';
-                }
+                li.dataset.visited = visited;
+                favIcon.className = visited ? 'fa fa-heart' : 'fa fa-heart-o';
             }
         );
     }

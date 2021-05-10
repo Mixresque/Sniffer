@@ -103,12 +103,12 @@ public class VisitHistory extends HttpServlet {
     }
 
     try {
-      Set<String> visitedRestaurants = connection.getVisitedRestaurants(userId);
-      JSONArray visited = new JSONArray();
-      for (String restaurantId : visitedRestaurants) {
-        visited.put(restaurantId);
+      Set<String> visitedRestaurantIds = connection.getVisitedRestaurants(userId);
+      JSONArray visitedRestaurants = new JSONArray();
+      for (String restaurantId : visitedRestaurantIds) {
+        visitedRestaurants.put(connection.getRestaurantById(restaurantId, true));
       }
-      RpcParser.writeJsonArray(response, HttpServletResponse.SC_OK, visited);
+      RpcParser.writeJsonArray(response, HttpServletResponse.SC_OK, visitedRestaurants);
     } catch (JSONException e) {
       e.printStackTrace();
       RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_BAD_REQUEST);

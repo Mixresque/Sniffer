@@ -187,7 +187,7 @@ public class Restaurant {
   public JSONObject toJSONObject() {
     JSONObject obj = new JSONObject();
     try {
-      obj.put("businessId", businessId);
+      obj.put("business_id", businessId);
       obj.put("name", name);
       obj.put("categories", stringToJSONArray(categories));
       obj.put("city", city);
@@ -196,7 +196,7 @@ public class Restaurant {
       obj.put("stars", stars);
       obj.put("latitude", latitude);
       obj.put("longitude", longitude);
-      obj.put("imageUrl", imageUrl);
+      obj.put("image_url", imageUrl);
       obj.put("url", url);
     } catch (JSONException e) {
       e.printStackTrace();

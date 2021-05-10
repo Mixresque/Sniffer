@@ -71,7 +71,7 @@ public class Recommendation {
     // Step 4 get recommended restaurants' info and store in JSONArray
     JSONArray recommendedRestaurants = new JSONArray();
     for (String restaurantId : recommendedRestaurantIds) {
-      JSONObject restaurant = connection.getRestaurantsById(restaurantId, false);
+      JSONObject restaurant = connection.getRestaurantById(restaurantId, false);
       if (restaurant != null) {
         recommendedRestaurants.put(restaurant);
       }

@@ -40,7 +40,7 @@ public interface DBConnection {
    * @param visiting - set the visited field in json if visiting
    * @return queried restaurant in JSON
    */
-  public JSONObject getRestaurantsById(String businessId, boolean visiting);
+  public JSONObject getRestaurantById(String businessId, boolean visiting);
 
   /**
    * Set a list of restaurants as visited for a user
