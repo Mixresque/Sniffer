@@ -1,7 +1,7 @@
 package org.ddhee.Sniffer.rpc;
 
 import org.ddhee.Sniffer.db.DBConnection;
-import org.ddhee.Sniffer.db.mysql.MysqlDBConnection;
+import org.ddhee.Sniffer.db.DBConnectionFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,7 +26,7 @@ public class VisitHistory extends HttpServlet {
       return;
     }
 
-    DBConnection connection = new MysqlDBConnection();
+    DBConnection connection = DBConnectionFactory.getConnection();
     if (!connection.isConnected()) {
       RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
@@ -60,7 +60,7 @@ public class VisitHistory extends HttpServlet {
       return;
     }
 
-    DBConnection connection = new MysqlDBConnection();
+    DBConnection connection = DBConnectionFactory.getConnection();
     if (!connection.isConnected()) {
       RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;
@@ -96,7 +96,7 @@ public class VisitHistory extends HttpServlet {
       return;
     }
 
-    DBConnection connection = new MysqlDBConnection();
+    DBConnection connection = DBConnectionFactory.getConnection();
     if (!connection.isConnected()) {
       RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
       return;

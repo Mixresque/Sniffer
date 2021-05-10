@@ -1,6 +1,5 @@
 package org.ddhee.Sniffer.db.mysql;
 
-import org.ddhee.Sniffer.db.Argon2Config;
 import org.ddhee.Sniffer.db.DBConnection;
 import org.ddhee.Sniffer.entity.Restaurant;
 import org.ddhee.Sniffer.external.YelpAPI;
@@ -11,16 +10,22 @@ import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 
 import java.sql.*;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MysqlDBConnection implements DBConnection {
   private Connection conn = null;
   private boolean connected;
+  private static MysqlDBConnection instance;
 
-  public MysqlDBConnection(String url) {
+  public static DBConnection getInstance() {
+    if (instance == null || !instance.isConnected()) {
+      instance = new MysqlDBConnection();
+    }
+    return instance;
+  }
+
+  private MysqlDBConnection(String url) {
     try {
       Class.forName(MysqlDBUtil.DRIVER).newInstance();
       conn = DriverManager.getConnection(url);
@@ -33,7 +38,7 @@ public class MysqlDBConnection implements DBConnection {
     }
   }
 
-  public MysqlDBConnection() {
+  private MysqlDBConnection() {
     this(MysqlDBUtil.DB_URL);
   }
 
@@ -51,43 +56,29 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public boolean isConnected() {
-    return connected;
+    return connected && conn != null;
   }
 
   @Override
   public Boolean verifyLogin(String userId, String password) {
-    if (!connected || conn == null || userId == null || password == null) {
+    if (!isConnected() || userId == null || password == null) {
       return false;
     }
 
     try {
-      String sql = "SELECT password FROM users WHERE user_id = ? AND password = ?";
+      // Get hashed password then compare
+      String sql = "SELECT password FROM users WHERE user_id = ?";
       PreparedStatement stmt = conn.prepareStatement(sql);
       stmt.setString(1, userId);
-
-      // Hash input password then check if exists in database
-      Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
-      String hashedPwd = argon2.hash(Argon2Config.iterations,
-              Argon2Config.memory, Argon2Config.parallelism, password.toCharArray());
-      stmt.setString(2, hashedPwd);
-
       ResultSet rs = stmt.executeQuery();
-      return rs.next();
-
-//      // Get hashed password then compare
-//      String sql = "SELECT password FROM users WHERE user_id = ?";
-//      PreparedStatement stmt = conn.prepareStatement(sql);
-//      stmt.setString(1, userId);
-//      ResultSet rs = stmt.executeQuery();
-//      if (rs.next()) {
-//        String hashedPwd = rs.getString("password");
-//        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
-//        return argon2.verify(hashedPwd, password.toCharArray());
-//      } else {
-//        // Couldn't find corresponding user
-//        return false;
-//      }
-
+      if (rs.next()) {
+        String hashedPwd = rs.getString("password");
+        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+        return argon2.verify(hashedPwd, password.toCharArray());
+      } else {
+        // Couldn't find corresponding user
+        return false;
+      }
     } catch (SQLException e) {
       e.printStackTrace();
     }
@@ -96,7 +87,7 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public String getFullName(String userId) {
-    if (!connected || conn == null || userId == null) {
+    if (!isConnected() || userId == null) {
       return null;
     }
 
@@ -127,7 +118,7 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public JSONObject getRestaurantById(String businessId, boolean visiting) {
-    if (!connected || conn == null || businessId == null) {
+    if (!isConnected() || businessId == null) {
       return null;
     }
 
@@ -160,7 +151,7 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public boolean setVisitedRestaurants(String userId, List<String> businessIds) {
-    if (!connected || conn == null || userId == null || businessIds == null) {
+    if (!isConnected() || userId == null || businessIds == null) {
       return false;
     }
 
@@ -198,7 +189,7 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public boolean unsetVisitedRestaurants(String userId, List<String> businessIds) {
-    if (!connected || conn == null || userId == null || businessIds == null) {
+    if (!isConnected() || userId == null || businessIds == null) {
       return false;
     }
 
@@ -221,7 +212,7 @@ public class MysqlDBConnection implements DBConnection {
   public Set<String> getVisitedRestaurants(String userId) {
     Set<String> visitedRestaurants = new HashSet<>();
 
-    if (!connected || conn == null || userId == null) {
+    if (!isConnected() || userId == null) {
       return visitedRestaurants;
     }
 
@@ -242,10 +233,8 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public Set<String> getCategories(String businessId) {
-    Set<String> categorySet = new HashSet<>();
-
-    if (!connected || conn == null || businessId == null) {
-      return categorySet;
+    if (!isConnected() || businessId == null) {
+      return new HashSet<>();
     }
 
     String sql = "SELECT categories FROM restaurants WHERE business_id = ?";
@@ -255,19 +244,18 @@ public class MysqlDBConnection implements DBConnection {
       ResultSet rs = statement.executeQuery();
       if (rs.next()) {
         String[] categories = rs.getString("categories").split(",");
-        Collections.addAll(categorySet, categories);
+        return Arrays.stream(categories).map(String::trim).collect(Collectors.toSet());
       }
-      return categorySet;
     } catch (SQLException e) {
       e.printStackTrace();
     }
-    return categorySet;
+    return new HashSet<>();
   }
 
   @Override
   public Set<String> getBusinessIdByCategory(String category) {
     Set<String> businesses = new HashSet<>();
-    if (!connected || conn == null || category == null) {
+    if (!isConnected() || category == null) {
       return businesses;
     }
 
@@ -288,7 +276,7 @@ public class MysqlDBConnection implements DBConnection {
 
   @Override
   public JSONArray searchRestaurants(String userId, double lat, double lon, String term) {
-    if (!connected || conn == null || userId == null) {
+    if (!isConnected() || userId == null) {
       return null;
     }
 
@@ -342,6 +330,8 @@ public class MysqlDBConnection implements DBConnection {
 
   public static void main(String[] args) {
     MysqlDBConnection db = new MysqlDBConnection();
-    System.out.println(db.searchRestaurants("ddhee", 37.38, -122.08, "coffee").toString());
+//    System.out.println(db.searchRestaurants("ddhee", 37.38, -122.08, "coffee").toString());
+    System.out.println(db.verifyLogin("ddhee", "222"));
+    System.out.println(db.verifyLogin("ddhee", "123"));
   }
 }

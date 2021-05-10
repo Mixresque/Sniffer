@@ -1,11 +1,7 @@
 package org.ddhee.Sniffer.rpc;
 
 import org.ddhee.Sniffer.algorithm.Recommendation;
-import org.ddhee.Sniffer.db.DBConnection;
-import org.ddhee.Sniffer.db.mysql.MysqlDBConnection;
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

@@ -1,7 +1,7 @@
 package org.ddhee.Sniffer.algorithm;
 
 import org.ddhee.Sniffer.db.DBConnection;
-import org.ddhee.Sniffer.db.mysql.MysqlDBConnection;
+import org.ddhee.Sniffer.db.DBConnectionFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -17,7 +17,7 @@ public class Recommendation {
    * @return list of recommended restaurants in JSON array
    */
   public static JSONArray recommendRestaurants(String userId) {
-    DBConnection connection = new MysqlDBConnection();
+    DBConnection connection = DBConnectionFactory.getConnection();
     if (!connection.isConnected()) {
       return null;
     }
@@ -35,6 +35,11 @@ public class Recommendation {
     // Step 1
     Set<String> visitedRestaurants = connection.getVisitedRestaurants(userId);
 
+//    System.out.println("visted restaurants: ");
+//    for (String id : visitedRestaurants) {
+//      System.out.println(id);
+//    }
+
     // Step 2.1 count categories of visited restaurants
     Map<String, Integer> categoryCounts = new HashMap<>();
     for (String restaurantId : visitedRestaurants) {
@@ -47,14 +52,24 @@ public class Recommendation {
     List<Map.Entry<String, Integer>> categoryCountsList = new ArrayList<>(categoryCounts.entrySet());
     categoryCountsList.sort(Collections.reverseOrder(Map.Entry.comparingByValue()));
 
+//    System.out.println("sorted category counts:");
+//    for (Map.Entry<String, Integer> entry : categoryCountsList) {
+//      System.out.println(entry.getKey() + ": " + entry.getValue());
+//    }
+
     // Step 3.1 get ids of restaurants with same categories
     Set<String> recommendedRestaurantIds = new HashSet<>();
     for (Map.Entry<String, Integer> categoryAndCount : categoryCountsList) {
       Set<String> businesses = connection.getBusinessIdByCategory(categoryAndCount.getKey());
 
+//      System.out.println("Recommending for: " + categoryAndCount.getKey());
+
       for (String businessId : businesses) {
         if (!visitedRestaurants.contains(businessId)) {
           recommendedRestaurantIds.add(businessId);
+
+//          System.out.println(businessId);
+
           if (recommendedRestaurantIds.size() >= MAX_RECOMMENDED_RESTAURANTS) {
             break;
           }

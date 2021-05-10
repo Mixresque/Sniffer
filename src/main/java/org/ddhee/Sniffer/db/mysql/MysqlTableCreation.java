@@ -82,7 +82,7 @@ public class MysqlTableCreation {
               Argon2Config.memory, Argon2Config.parallelism, password.toCharArray());
       sql = "INSERT  INTO users VALUES ('" + userId + "', '" + hashedPwd
               + "', '" + firstName + "', '" + lastName + "')";
-      int result = stmt.executeUpdate(sql);
+      stmt.executeUpdate(sql);
       System.out.println("Inserted fake user ddhee");
     } catch (SQLException e) {
       System.out.println("SQLException " + e.getMessage());

@@ -6,6 +6,7 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 
 import org.ddhee.Sniffer.db.DBConnection;
+import org.ddhee.Sniffer.db.DBConnectionFactory;
 import org.ddhee.Sniffer.db.mysql.MysqlDBConnection;
 import org.json.JSONArray;
 
@@ -25,7 +26,8 @@ public class SearchRestaurants extends HttpServlet {
       // term is null or empty by default
       String term = request.getParameter("term");
 
-      DBConnection connection = new MysqlDBConnection();
+      DBConnection connection = DBConnectionFactory.getConnection();
+
       if (!connection.isConnected()) {
         RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         return;
