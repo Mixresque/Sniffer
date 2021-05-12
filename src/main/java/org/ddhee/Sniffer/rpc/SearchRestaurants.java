@@ -7,21 +7,25 @@ import javax.servlet.annotation.*;
 
 import org.ddhee.Sniffer.db.DBConnection;
 import org.ddhee.Sniffer.db.DBConnectionFactory;
-import org.ddhee.Sniffer.db.mysql.MysqlDBConnection;
 import org.json.JSONArray;
 
 // Search restaurants by geo location
 @WebServlet(name = "SearchRestaurants", value = "/restaurants")
 public class SearchRestaurants extends HttpServlet {
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    if (session.getAttribute("user_id") == null) {
+      RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_FORBIDDEN);
+      return;
+    }
+
     String lat = request.getParameter("lat");
     String lon = request.getParameter("lon");
 
     JSONArray restaurants = new JSONArray();
 
     if (lat != null && lon != null) {
-      // String userId = (String) session.getAttribute("user");
-      String userId = request.getParameter("user_id");
+      String userId = (String) session.getAttribute("user_id");
 
       // term is null or empty by default
       String term = request.getParameter("term");

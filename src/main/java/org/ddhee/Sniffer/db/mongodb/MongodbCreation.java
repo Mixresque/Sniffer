@@ -10,6 +10,10 @@ import de.mkammerer.argon2.Argon2Factory;
 import org.bson.Document;
 import org.ddhee.Sniffer.db.Argon2Config;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 
 public class MongodbCreation {
   public static void main(String[] args) {
@@ -19,17 +23,43 @@ public class MongodbCreation {
     // Reset collections
     db.getCollection("users").drop();
 
-    Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+    String userId = "user";
     String password = "123";
+    String firstName = "John";
+    String lastName = "Smith";
+
+    // compute md5(userId + md5(password))
+    String md5Hashed = password;
+    try {
+      MessageDigest md5 = MessageDigest.getInstance("MD5");
+      byte[] messageDigest = md5.digest(password.getBytes());
+      BigInteger no = new BigInteger(1, messageDigest);
+      md5Hashed = no.toString(16);
+      while (md5Hashed.length() < 32) {
+        md5Hashed = "0" + md5Hashed;
+      }
+
+      md5Hashed = userId + md5Hashed;
+      messageDigest = md5.digest(md5Hashed.getBytes());
+      no = new BigInteger(1, messageDigest);
+      md5Hashed = no.toString(16);
+      while (md5Hashed.length() < 32) {
+        md5Hashed = "0" + md5Hashed;
+      }
+    } catch (NoSuchAlgorithmException e) {
+      e.printStackTrace();
+    }
+
+    Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
     String hashedPwd = argon2.hash(Argon2Config.iterations,
-            Argon2Config.memory, Argon2Config.parallelism, password.toCharArray());
+            Argon2Config.memory, Argon2Config.parallelism, md5Hashed.toCharArray());
 
     // Insert a fake user for testing
     db.getCollection("users").insertOne(
-            new Document().append("user_id", "ddhee")
+            new Document().append("user_id", userId)
                           .append("password", hashedPwd)
-                          .append("first_name", "Dd")
-                          .append("last_name", "Hee")
+                          .append("first_name", firstName)
+                          .append("last_name", lastName)
     );
 
     // set index for collections

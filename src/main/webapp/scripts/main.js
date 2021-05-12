@@ -13,12 +13,12 @@
         $('fav-btn').addEventListener('click', loadFavoriteRestaurants);
         $('recommend-btn').addEventListener('click', loadRecommendedRestaurants);
 
-        // validateSession();
+        validateSession();
 
-        onSessionValid({
-            user_id: 'ddhee',
-            name: 'Dd Hee'
-        });
+        // onSessionValid({
+        //     user_id: 'ddhee',
+        //     name: 'Dd Hee'
+        // });
     }
 
     // -------------
@@ -26,7 +26,7 @@
     // -------------
     function validateSession() {
         // The request parameters
-        let url = './LoginServlet';
+        let url = './login';
         let req = JSON.stringify({});
 
         // display loading message
@@ -137,13 +137,15 @@
         password = md5(username + md5(password));
 
         //The request parameters
-        let url = './LoginServlet';
+        let url = './login';
         let params = 'user_id=' + username + '&password=' + password;
         let req = JSON.stringify({});
 
         ajax('POST', url + '?' + params, req,
             // successful callback
             function (res) {
+                console.log(res);
+
                 let result = JSON.parse(res);
 
                 // successfully logged in

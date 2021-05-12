@@ -4,6 +4,9 @@ import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import org.ddhee.Sniffer.db.Argon2Config;
 
+import java.math.BigInteger;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -73,13 +76,36 @@ public class MysqlTableCreation {
       System.out.println("Table reset successfully. ");
 
       // Test inserting data. Insert a fake user
-      String userId = "ddhee";
+      String userId = "user";
       String password ="123";
-      String firstName = "Dd";
-      String lastName = "Hee";
+      String firstName = "John";
+      String lastName = "Smith";
+
+      // compute md5(userId + md5(password))
+      String md5Hashed = password;
+      try {
+        MessageDigest md5 = MessageDigest.getInstance("MD5");
+        byte[] messageDigest = md5.digest(password.getBytes());
+        BigInteger no = new BigInteger(1, messageDigest);
+        md5Hashed = no.toString(16);
+        while (md5Hashed.length() < 32) {
+          md5Hashed = "0" + md5Hashed;
+        }
+
+        md5Hashed = userId + md5Hashed;
+        messageDigest = md5.digest(md5Hashed.getBytes());
+        no = new BigInteger(1, messageDigest);
+        md5Hashed = no.toString(16);
+        while (md5Hashed.length() < 32) {
+          md5Hashed = "0" + md5Hashed;
+        }
+      } catch (NoSuchAlgorithmException e) {
+        e.printStackTrace();
+      }
+
       Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
       String hashedPwd = argon2.hash(Argon2Config.iterations,
-              Argon2Config.memory, Argon2Config.parallelism, password.toCharArray());
+              Argon2Config.memory, Argon2Config.parallelism, md5Hashed.toCharArray());
       sql = "INSERT  INTO users VALUES ('" + userId + "', '" + hashedPwd
               + "', '" + firstName + "', '" + lastName + "')";
       stmt.executeUpdate(sql);

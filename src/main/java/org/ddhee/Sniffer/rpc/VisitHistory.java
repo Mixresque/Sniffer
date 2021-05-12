@@ -11,6 +11,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +21,14 @@ import java.util.Set;
 @WebServlet(name = "VisitHistory", value = "/history")
 public class VisitHistory extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    if (session.getAttribute("user_id") == null) {
+      RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_FORBIDDEN);
+      return;
+    }
+
     JSONObject input = RpcParser.readJsonObject(request);
-    if (input == null || !input.has("user_id") || !input.has("visited")) {
+    if (input == null || !input.has("visited")) {
       RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_BAD_REQUEST);
       return;
     }
@@ -33,7 +40,7 @@ public class VisitHistory extends HttpServlet {
     }
 
     try {
-      String userId = input.getString("user_id");
+      String userId = (String) session.getAttribute("user_id");
       JSONArray visited = (JSONArray) input.get("visited");
       List<String> visitedRestaurants = new ArrayList<>();
       for (int i = 0; i < visited.length(); i++) {
@@ -54,8 +61,14 @@ public class VisitHistory extends HttpServlet {
   }
 
   public void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    if (session.getAttribute("user_id") == null) {
+      RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_FORBIDDEN);
+      return;
+    }
+
     JSONObject input = RpcParser.readJsonObject(request);
-    if (input == null || !input.has("user_id") || !input.has("visited")) {
+    if (input == null || !input.has("visited")) {
       RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_BAD_REQUEST);
       return;
     }
@@ -67,7 +80,7 @@ public class VisitHistory extends HttpServlet {
     }
 
     try {
-      String userId = input.getString("user_id");
+      String userId = (String) session.getAttribute("user_id");
       JSONArray visited = (JSONArray) input.get("visited");
       List<String> visitedRestaurants = new ArrayList<>();
       for (int i = 0; i < visited.length(); i++) {
@@ -88,8 +101,13 @@ public class VisitHistory extends HttpServlet {
   }
 
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-    String userId = request.getParameter("user_id");
-    // String userId = (String) session.getAttribute("user");
+    HttpSession session = request.getSession();
+    if (session.getAttribute("user_id") == null) {
+      RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_FORBIDDEN);
+      return;
+    }
+
+     String userId = (String) session.getAttribute("user_id");
 
     if (userId == null) {
       RpcParser.writeEmptyResponse(response, HttpServletResponse.SC_BAD_REQUEST);
