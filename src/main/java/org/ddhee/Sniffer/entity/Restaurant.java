@@ -88,7 +88,7 @@ public class Restaurant {
     }
 
     // helper function to convert a json array to string, connecting objects with ", "
-    private String jsonArrayToString(JSONArray array) {
+    String jsonArrayToString(JSONArray array) {
       if (array == null) {
         return null;
       }
