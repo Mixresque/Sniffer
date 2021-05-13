@@ -103,16 +103,15 @@
 
     function onLoadPositionFailed() {
         console.warn('navigator.geolocation is not available');
-        //loadNearbyRestaurants();
         getLocationFromIP();
     }
 
     function getLocationFromIP() {
-        // Get location from http://ipinfo.io/json
-        let url = 'http://ipinfo.io/json'
+        // Get location from https://ipinfo.io/json
+        let url = 'https://ipinfo.io/json'
         let req = null;
         ajax('GET', url, req,
-            // session is still valid
+            // session is still validonLoad
             function (res) {
                 let result = JSON.parse(res);
                 if ('loc' in result) {
@@ -123,7 +122,10 @@
                     console.warn('Getting location by IP failed.');
                 }
                 loadNearbyRestaurants();
-            }
+            },
+            function (res) {
+            console.warn('Getting location by IP failed.');
+        }
         );
     }
 

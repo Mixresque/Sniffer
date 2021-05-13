@@ -15,7 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 
-public class MongodbCreation {
+public class MongodbCollectionCreation {
   public static void main(String[] args) {
     MongoClient mongoClient = new MongoClient(new MongoClientURI(MongodbUtil.DB_URI));
     MongoDatabase db = mongoClient.getDatabase(MongodbUtil.DB_NAME);
